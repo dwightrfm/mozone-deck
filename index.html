@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The Mo Zone · Builder's Playbook</title>
+<style>
+:root{
+  --bg:#000;
+  --ink:#ffffff;
+  --dim:rgba(228,241,244,.60);
+  --dimmer:rgba(228,241,244,.36);
+  --a1:#7FF0DC;
+  --a2:#4FB9E8;
+  --warm:#FFB26B;
+  --glass:rgba(255,255,255,.055);
+  --hair:rgba(255,255,255,.10);
+  --spring:cubic-bezier(.22,1,.36,1);
+  --ax:22%; --ay:16%;
+  --bx:86%; --by:82%;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#000}
+body{
+  color:var(--ink); overflow:hidden;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text","Helvetica Neue",Helvetica,Arial,sans-serif;
+  font-optical-sizing:auto;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+  text-rendering:optimizeLegibility;
+}
+
+/* ── ambient light ─────────────────────────────────────────── */
+.aura{position:fixed;inset:-20%;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(52vw 52vw at var(--ax) var(--ay), rgba(79,185,232,.30), transparent 62%),
+    radial-gradient(46vw 46vw at var(--bx) var(--by), rgba(127,240,220,.18), transparent 64%),
+    radial-gradient(70vw 50vw at 50% 120%, rgba(14,106,122,.30), transparent 70%);
+  filter:blur(24px);
+  transition:background 1.3s var(--spring);
+}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.45;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.36'/%3E%3C/svg%3E")}
+.vignette{position:fixed;inset:0;z-index:1;pointer-events:none;
+  background:radial-gradient(120% 90% at 50% 45%, transparent 42%, rgba(0,0,0,.72) 100%)}
+
+/* ── deck / slides ─────────────────────────────────────────── */
+.deck{position:relative;height:100vh;height:100dvh;width:100vw;z-index:2;touch-action:pan-y}
+.slide{
+  position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;
+  padding:9vh 7.5vw; opacity:0; pointer-events:none; visibility:hidden;
+  transition:opacity .42s ease, visibility 0s linear .42s;
+}
+.slide.on{opacity:1;pointer-events:auto;visibility:visible;transition:opacity .5s ease, visibility 0s}
+.inner{width:100%;max-width:1560px;margin:0 auto}
+
+/* staggered reveal */
+.r{opacity:0;transform:translateY(26px);will-change:transform,opacity}
+.slide.on .r{opacity:1;transform:none;
+  transition:opacity .75s var(--spring) calc(var(--d,0)*70ms), transform .95s var(--spring) calc(var(--d,0)*70ms)}
+
+/* ── type ──────────────────────────────────────────────────── */
+.kicker{
+  font-size:clamp(10px,.92vw,13px);font-weight:600;letter-spacing:.3em;text-transform:uppercase;
+  color:var(--a1);margin-bottom:2.6vh;display:flex;align-items:center;gap:11px
+}
+.kicker .dot{width:6px;height:6px;border-radius:99px;background:var(--warm);flex:none;
+  box-shadow:0 0 0 4px rgba(255,178,107,.16)}
+h1{font-size:clamp(46px,8.4vw,132px);font-weight:700;letter-spacing:-.042em;line-height:.93}
+h2{font-size:clamp(30px,4.9vw,74px);font-weight:700;letter-spacing:-.034em;line-height:1.02;max-width:17ch}
+h3{font-size:clamp(22px,2.6vw,38px);font-weight:600;letter-spacing:-.026em;line-height:1.1}
+.grad{background:linear-gradient(104deg,var(--a1) 6%,var(--a2) 62%,#fff 130%);
+  -webkit-background-clip:text;background-clip:text;color:transparent}
+p.lede{font-size:clamp(16px,1.62vw,25px);line-height:1.55;color:var(--dim);max-width:36ch;margin-top:2.6vh;font-weight:400;letter-spacing:-.005em}
+p.lede b{color:var(--ink);font-weight:600}
+.sub{margin-top:3.2vh;font-size:clamp(16px,1.6vw,25px);color:var(--dim);max-width:40ch;line-height:1.55}
+
+.say{
+  margin-top:3.4vh;padding:16px 0 16px 22px;position:relative;
+  font-size:clamp(15px,1.5vw,23px);line-height:1.45;color:#fff;font-weight:500;max-width:40ch;
+  letter-spacing:-.012em
+}
+.say::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:3px;
+  background:linear-gradient(180deg,var(--a1),var(--a2));box-shadow:0 0 18px rgba(127,240,220,.45)}
+
+/* ── layout ────────────────────────────────────────────────── */
+.row{display:grid;grid-template-columns:1.02fr .98fr;gap:6vw;align-items:center}
+.row.tight{grid-template-columns:1.12fr .88fr;gap:4.5vw}
+@media(max-width:940px){
+  .row,.row.tight{grid-template-columns:1fr;gap:3.2vh}
+  p.lede,h2,.sub{max-width:none}
+  .art-wrap{display:none}
+}
+
+/* ── glass cards ───────────────────────────────────────────── */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:1vh}
+.card{
+  background:linear-gradient(168deg,rgba(255,255,255,.085),rgba(255,255,255,.028));
+  border:1px solid var(--hair);border-radius:22px;padding:26px 24px 28px;
+  backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:0 24px 60px -30px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.14);
+  position:relative;overflow:hidden
+}
+.card::after{content:"";position:absolute;inset:0;border-radius:22px;pointer-events:none;
+  background:linear-gradient(160deg,rgba(127,240,220,.14),transparent 46%);opacity:.9}
+.card .n{font-size:10.5px;font-weight:600;letter-spacing:.24em;color:var(--a1);text-transform:uppercase}
+.card .t{font-size:clamp(17px,1.5vw,23px);font-weight:600;margin-top:11px;line-height:1.16;letter-spacing:-.02em}
+.card .d{font-size:clamp(13.5px,1.08vw,17px);color:var(--dim);margin-top:11px;line-height:1.5}
+@media(max-width:940px){.cards{grid-template-columns:1fr;gap:12px}.card{padding:18px}}
+
+/* ── numbered grid ─────────────────────────────────────────── */
+.beats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:3vh;
+  border-radius:20px;overflow:hidden;border:1px solid var(--hair);background:var(--hair)}
+.beat{display:flex;gap:16px;align-items:flex-start;padding:20px 22px;
+  background:rgba(255,255,255,.035);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
+  font-size:clamp(13px,1.1vw,17px);line-height:1.38;color:var(--dim);
+  transition:background .35s var(--spring)}
+.beat:hover{background:rgba(255,255,255,.085)}
+.beat .num{font-variant-numeric:tabular-nums;font-weight:600;font-size:clamp(15px,1.25vw,20px);
+  letter-spacing:-.02em;flex:none;
+  background:linear-gradient(140deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.beat b{font-weight:600;color:#fff;display:block;letter-spacing:-.015em;margin-bottom:3px}
+@media(max-width:1100px){.beats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.beats{grid-template-columns:1fr}.beat{padding:12px 14px}}
+
+/* ── people ────────────────────────────────────────────────── */
+.face{display:block;border-radius:999px;overflow:hidden;flex:none;
+  box-shadow:0 22px 48px -22px rgba(0,0,0,.95), 0 0 0 1px rgba(255,255,255,.13),
+             inset 0 0 0 1px rgba(255,255,255,.06)}
+.face svg{display:block;width:100%;height:100%}
+.strip{display:flex;gap:clamp(10px,1.5vw,22px);margin-top:5vh;align-items:center}
+.strip .face{width:clamp(52px,6.2vw,92px);aspect-ratio:1}
+.strip .face:nth-child(even){transform:translateY(-12px)}
+
+.panel{
+  border-radius:26px;border:1px solid var(--hair);padding:30px 26px 26px;position:relative;overflow:hidden;
+  background:linear-gradient(170deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+  backdrop-filter:blur(26px) saturate(150%);-webkit-backdrop-filter:blur(26px) saturate(150%);
+  box-shadow:0 30px 70px -40px rgba(0,0,0,1), inset 0 1px 0 rgba(255,255,255,.12);
+  min-height:clamp(260px,38vh,400px);display:flex;flex-direction:column
+}
+.panel .tag{font-size:10.5px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--dimmer)}
+.panel.warm .tag{color:var(--warm)}
+.panel.good .tag{color:var(--a1)}
+.panel .cap{margin-top:auto;font-size:clamp(13px,1.08vw,17px);color:var(--dim);line-height:1.4}
+.panel .cap em{font-style:normal;color:#fff;font-weight:500}
+
+.duo{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:940px){.duo{grid-template-columns:1fr}}
+
+.stagefloat{flex:1;display:flex;align-items:center;justify-content:center;padding:18px 0}
+.lonely{position:relative;width:100%;height:100%;min-height:150px;display:flex;align-items:center;justify-content:center}
+.lonely .face{width:clamp(72px,8vw,110px);aspect-ratio:1}
+.lonely .ghost{position:absolute;border-radius:999px;border:1px dashed rgba(255,255,255,.14);
+  width:clamp(30px,3.4vw,46px);aspect-ratio:1}
+.cluster{display:flex;align-items:center;justify-content:center}
+.cluster .face{width:clamp(66px,7.4vw,102px);aspect-ratio:1}
+.cluster .face+.face{margin-left:clamp(-26px,-2.4vw,-16px)}
+.cluster .face:nth-child(2){z-index:2;transform:translateY(-10px)}
+.cluster .face:nth-child(3){z-index:1}
+
+.triad{display:flex;align-items:center;justify-content:center;gap:clamp(10px,2vw,34px);flex-wrap:wrap}
+.who{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+.who .face{width:clamp(80px,9vw,132px);aspect-ratio:1}
+.who .nm{font-size:clamp(12px,1.05vw,16px);font-weight:600;letter-spacing:-.01em}
+.who .rl{font-size:clamp(10px,.86vw,13px);letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin-top:-8px}
+.who.hero .face{width:clamp(96px,11vw,166px);box-shadow:0 26px 60px -24px rgba(0,0,0,1),0 0 0 2px rgba(127,240,220,.55),0 0 46px -6px rgba(127,240,220,.4)}
+
+.arrowx{flex:none;width:clamp(26px,3.6vw,64px);height:2px;border-radius:2px;position:relative;
+  background:linear-gradient(90deg,var(--a1),var(--a2));box-shadow:0 0 16px rgba(79,185,232,.6)}
+.arrowx::after{content:"";position:absolute;right:-1px;top:50%;width:8px;height:8px;
+  border-top:2px solid var(--a2);border-right:2px solid var(--a2);transform:translateY(-50%) rotate(45deg)}
+
+/* orbit */
+.orbit{position:relative;width:min(100%,clamp(300px,42vh,480px));aspect-ratio:1;margin:0 auto}
+.orbit .ring{position:absolute;inset:0;border-radius:999px;border:1px solid rgba(127,240,220,.20)}
+.orbit .ring.i{inset:19%;border-color:rgba(127,240,220,.34)}
+.orbit .face{position:absolute;width:23%;aspect-ratio:1;transform:translate(-50%,-50%)}
+.orbit .face.mid{width:30%;box-shadow:0 26px 60px -24px #000,0 0 0 2px rgba(255,178,107,.6),0 0 50px -8px rgba(255,178,107,.45)}
+
+/* match cards */
+.match{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:clamp(8px,1.4vw,22px)}
+.mcard{border-radius:24px;border:1px solid var(--hair);padding:24px 20px;text-align:center;
+  background:linear-gradient(170deg,rgba(255,255,255,.075),rgba(255,255,255,.02));
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  box-shadow:0 28px 64px -36px #000, inset 0 1px 0 rgba(255,255,255,.12)}
+.mcard.lit{border-color:rgba(127,240,220,.42);box-shadow:0 28px 64px -30px #000,0 0 44px -14px rgba(127,240,220,.5), inset 0 1px 0 rgba(255,255,255,.16)}
+.mcard .face{width:clamp(72px,8.2vw,120px);aspect-ratio:1;margin:0 auto}
+.mcard .nm{margin-top:14px;font-size:clamp(15px,1.4vw,21px);font-weight:600;letter-spacing:-.02em}
+.mcard .dt{margin-top:5px;font-size:clamp(11.5px,1vw,15px);color:var(--dim)}
+@media(max-width:940px){.match{grid-template-columns:1fr}.arrowx{width:2px;height:34px;margin:0 auto;background:linear-gradient(180deg,var(--a1),var(--a2))}.arrowx::after{right:50%;top:auto;bottom:-1px;transform:translateX(50%) rotate(135deg)}}
+
+/* three-step */
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1.4vw,20px);align-items:start}
+.step{text-align:center}
+.step .face{width:clamp(70px,7.6vw,112px);aspect-ratio:1;margin:0 auto}
+.step .lb{margin-top:16px;font-size:clamp(11px,.94vw,14px);letter-spacing:.24em;text-transform:uppercase;
+  background:linear-gradient(120deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
+.step .tx{margin-top:9px;font-size:clamp(12.5px,1.02vw,16px);color:var(--dim);line-height:1.45}
+
+/* zone diagram */
+.zone{border-radius:26px;border:1px solid var(--hair);overflow:hidden;
+  background:linear-gradient(170deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
+  backdrop-filter:blur(26px);-webkit-backdrop-filter:blur(26px);
+  box-shadow:0 34px 80px -46px #000, inset 0 1px 0 rgba(255,255,255,.12)}
+.zone .stage{padding:22px 24px;border-bottom:1px solid var(--hair);display:flex;align-items:center;justify-content:space-between;gap:16px;
+  background:rgba(255,255,255,.03)}
+.zone .stage .lb{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;color:var(--dimmer);font-weight:600}
+.zone .stage .faces{display:flex}
+.zone .stage .face{width:clamp(34px,3.4vw,46px);aspect-ratio:1}
+.zone .stage .face+.face{margin-left:-12px}
+.zone .floor{padding:26px 24px 28px;position:relative}
+.zone .floor .lb{font-size:10.5px;letter-spacing:.26em;text-transform:uppercase;font-weight:600;
+  background:linear-gradient(120deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.zone .pods{display:flex;flex-wrap:wrap;gap:clamp(14px,2vw,30px);margin-top:20px;justify-content:space-between}
+.zone .pod{display:flex}
+.zone .pod .face{width:clamp(38px,4vw,58px);aspect-ratio:1}
+.zone .pod .face+.face{margin-left:-14px}
+.zone .pod .face:nth-child(2){transform:translateY(-8px)}
+.zone .key{margin-top:24px;font-size:clamp(11px,.94vw,14px);color:var(--dimmer);display:flex;gap:20px;flex-wrap:wrap}
+.zone .key i{display:inline-block;width:9px;height:9px;border-radius:99px;margin-right:7px;vertical-align:baseline}
+
+/* title */
+.logo{width:clamp(74px,7vw,110px);aspect-ratio:1;filter:drop-shadow(0 0 30px rgba(127,240,220,.35))}
+.brandline{display:flex;align-items:center;gap:16px;margin-bottom:4vh}
+.brandline .wm{font-size:clamp(12px,1.05vw,16px);letter-spacing:.34em;text-transform:uppercase;font-weight:600;color:var(--dim)}
+
+/* closing stat */
+.bignum{display:flex;align-items:baseline;gap:clamp(12px,1.6vw,26px);flex-wrap:wrap;margin-top:1vh}
+.bignum .v{font-size:clamp(64px,13vw,210px);font-weight:700;letter-spacing:-.055em;line-height:.84}
+
+/* ── chrome ────────────────────────────────────────────────── */
+.bar{position:fixed;left:0;right:0;top:0;height:2px;background:rgba(255,255,255,.07);z-index:30}
+.bar i{display:block;height:100%;width:0;
+  background:linear-gradient(90deg,var(--a1),var(--a2));box-shadow:0 0 14px rgba(127,240,220,.7);
+  transition:width .6s var(--spring)}
+.hud{position:fixed;bottom:max(20px,env(safe-area-inset-bottom));left:0;right:0;display:flex;justify-content:center;z-index:31}
+.hud .pill{display:flex;align-items:center;gap:6px;padding:6px;border-radius:999px;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.13);
+  backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:0 18px 44px -20px rgba(0,0,0,.9), inset 0 1px 0 rgba(255,255,255,.16)}
+.hud button{background:transparent;border:0;color:#fff;width:34px;height:34px;border-radius:99px;
+  font-size:17px;cursor:pointer;line-height:1;display:grid;place-items:center;
+  transition:background .2s ease, transform .12s ease-out}
+.hud button:hover{background:rgba(255,255,255,.14)}
+.hud button:active{transform:scale(.9);background:rgba(255,255,255,.2)}
+.hud button:disabled{opacity:.28;cursor:default}
+.hud .count{font-size:11px;letter-spacing:.2em;font-weight:600;color:var(--dim);
+  font-variant-numeric:tabular-nums;padding:0 10px;min-width:74px;text-align:center}
+.creed{position:fixed;top:24px;right:30px;z-index:31;text-align:right;font-size:9.5px;letter-spacing:.28em;
+  font-weight:600;text-transform:uppercase;color:rgba(255,255,255,.3);line-height:1.9}
+@media(max-width:760px){.creed{display:none}}
+
+@media (prefers-reduced-motion: reduce){
+  .r{transform:none!important;transition:opacity .3s ease!important}
+  .slide{transition:opacity .25s ease!important}
+  .aura{transition:none}
+  .bar i{transition:none}
+}
+</style>
+</head>
+<body>
+
+<div class="aura"></div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="deck" id="deck">
+
+<!-- 1 · title -->
+<section class="slide on">
+  <div class="inner">
+    <div class="brandline r" style="--d:0">
+      <span class="logo" data-logo></span>
+      <span class="wm">RISE Team</span>
+    </div>
+    <div class="kicker r" style="--d:1"><span class="dot"></span>Builder's Playbook</div>
+    <h1 class="r" style="--d:2">The Mo <span class="grad">Zone</span>.</h1>
+    <p class="sub r" style="--d:3">The 30 minutes before and after the event. This is what converts your prospect. This is where people decide.</p>
+    <div class="strip r" style="--d:4"
+         data-people="amara,kenji,priya,marcus,jin,rosa,amir,grace"></div>
+  </div>
+</section>
+
+<!-- 2 · where it happens -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>Where it happens</div>
+      <h2 class="r" style="--d:1">The event is the stage. The <span class="grad">Mo Zone</span> is where they decide.</h2>
+      <p class="lede r" style="--d:2">The 30 minutes before and after the event are the foundation of the whole experience. The business is built in the small circles, before and after.</p>
+    </div>
+    <div class="art-wrap r" style="--d:3">
+      <div class="zone">
+        <div class="stage">
+          <span class="lb">The meeting</span>
+          <span class="faces" data-people="amara,marcus"></span>
+        </div>
+        <div class="floor">
+          <span class="lb">The Mo Zone</span>
+          <div class="pods">
+            <span class="pod" data-people="priya,jin,tom"></span>
+            <span class="pod" data-people="marcus,rosa,wei"></span>
+            <span class="pod" data-people="grace,diego"></span>
+            <span class="pod" data-people="aisha,kenji,daniel"></span>
+          </div>
+          <div class="key">
+            <span><i style="background:linear-gradient(140deg,#7FF0DC,#4FB9E8)"></i>Your people</span>
+            <span><i style="background:linear-gradient(140deg,#FFB26B,#F08A3C)"></i>Guests</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 · never alone -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>Rule one</div>
+      <h2 class="r" style="--d:1">Your guest is <span class="grad">never</span> left standing alone.</h2>
+      <p class="lede r" style="--d:2">A guest alone in a loud room decides one thing: <b>I do not belong here.</b> That decision happens in about 30 seconds and you never get it back.</p>
+      <div class="say r" style="--d:3">Your guest is 100% your responsibility.</div>
+    </div>
+    <div class="art-wrap duo">
+      <div class="panel warm r" style="--d:3">
+        <span class="tag">Alone</span>
+        <div class="stagefloat">
+          <div class="lonely">
+            <span class="ghost" style="top:4%;left:6%"></span>
+            <span class="ghost" style="top:8%;right:4%"></span>
+            <span class="ghost" style="bottom:2%;left:10%"></span>
+            <span class="ghost" style="bottom:6%;right:8%"></span>
+            <span data-people="jin"></span>
+          </div>
+        </div>
+        <div class="cap"><em>"I'll just check my phone."</em></div>
+      </div>
+      <div class="panel good r" style="--d:4">
+        <span class="tag">Escorted</span>
+        <div class="stagefloat">
+          <div class="cluster" data-people="marcus,jin,priya"></div>
+        </div>
+        <div class="cap"><em>"Come meet somebody."</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 · edify -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>The move</div>
+      <h2 class="r" style="--d:1">Edify before you <span class="grad">introduce</span>.</h2>
+      <p class="lede r" style="--d:2">You cannot build yourself up. You build up the other person, and they build you up. Credibility gets handed across the circle. <b>Nobody claims it for themselves.</b></p>
+      <div class="say r" style="--d:3">"Olivia is a successful entrepreneur who leads a team of more than 500 people. She is a mom of three, and she taught me how to win in business. I can't believe you get to meet her today."</div>
+    </div>
+    <div class="art-wrap r" style="--d:4">
+      <div class="triad">
+        <div class="who">
+          <span class="face" data-people="marcus"></span>
+          <span class="nm">You</span><span class="rl">The host</span>
+        </div>
+        <span class="arrowx"></span>
+        <div class="who hero">
+          <span class="face" data-people="amara"></span>
+          <span class="nm">Olivia</span><span class="rl">The leader</span>
+        </div>
+        <span class="arrowx"></span>
+        <div class="who">
+          <span class="face" data-people="jin"></span>
+          <span class="nm">Alex</span><span class="rl">Your guest</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 · the introduction -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker r" style="--d:0"><span class="dot"></span>The introduction</div>
+    <h2 class="r" style="--d:1;max-width:24ch">Walk them to Olivia. Build <span class="grad">Olivia</span> up first.</h2>
+    <div class="cards" style="margin-top:4vh">
+      <div class="card r" style="--d:2"><div class="n">Part 01</div><div class="t">Set it up as you walk.</div><div class="d">"I'm excited to introduce you to our main speaker, Olivia." Then walk them over. Do not park them at the wall.</div></div>
+      <div class="card r" style="--d:3"><div class="n">Part 02</div><div class="t">Edify Olivia first.</div><div class="d">Tell the guest why Olivia matters: her results, leadership, character, and why you respect her.</div></div>
+      <div class="card r" style="--d:4"><div class="n">Part 03</div><div class="t">Give Olivia the short brief.</div><div class="d">"Olivia, this is Alex. Alex is a teacher and came tonight to learn about building something alongside school."</div></div>
+    </div>
+    <div class="bignum r" style="--d:5;margin-top:4vh">
+      <span class="v grad">80</span>
+      <p class="lede" style="margin-top:0;max-width:30ch"><b>80% Olivia. 20% guest.</b> Never flip it. Olivia gets the full build-up. The guest gets a fast background and a reason for being here.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 6 · get out of the way -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>Then get out of the way</div>
+      <h2 class="r" style="--d:1">Let the other person do the <span class="grad">telling</span>.</h2>
+      <p class="lede r" style="--d:2">Once you have set it up, you stop talking. A story from a third party lands ten times harder than the same story from you. <b>You are the matchmaker, not the message.</b></p>
+      <div class="say r" style="--d:3">Two mouths talking, one mouth listening. Yours is the one listening.</div>
+    </div>
+    <div class="art-wrap r" style="--d:4">
+      <div class="triad">
+        <div class="who hero"><span class="face" data-people="amara"></span><span class="nm">Olivia</span><span class="rl">Telling</span></div>
+        <div class="who hero"><span class="face" data-people="jin"></span><span class="nm">Alex</span><span class="rl">Listening</span></div>
+        <div class="who" style="opacity:.45"><span class="face" data-people="marcus"></span><span class="nm">You</span><span class="rl">One step back</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 7 · match them -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>Who you walk them to</div>
+      <h2 class="r" style="--d:1">Match them to somebody who <span class="grad">looks like their life</span>.</h2>
+      <p class="lede r" style="--d:2">A teacher should meet a teacher. A dad of two should meet a dad of two. <b>People do not join a company. They join a person they can see themselves becoming.</b></p>
+      <div class="say r" style="--d:3">"Let me introduce you to Maya. She teaches too."</div>
+    </div>
+    <div class="art-wrap r" style="--d:4">
+      <div class="match">
+        <div class="mcard">
+          <span class="face" data-people="diego"></span>
+          <div class="nm">Alex</div><div class="dt">Teacher · two kids</div>
+        </div>
+        <span class="arrowx"></span>
+        <div class="mcard lit">
+          <span class="face" data-people="priya"></span>
+          <div class="nm">Maya</div><div class="dt">Teacher · started here</div>
+        </div>
+      </div>
+      <p class="lede" style="text-align:center;max-width:none;margin-top:3vh;font-size:clamp(12px,1vw,16px)">Same life, one year ahead.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 8 · widen the circle -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>Before they leave</div>
+      <h2 class="r" style="--d:1">Widen the circle. Then <span class="grad">stay</span>.</h2>
+      <p class="lede r" style="--d:2">One guest should meet three or four people in one night. Every handshake is another reason to come back. <b>You stay next to them the whole time.</b></p>
+      <div class="say r" style="--d:3">"There are a couple more people I'd love for you to meet."</div>
+    </div>
+    <div class="art-wrap r" style="--d:4">
+      <div class="orbit">
+        <span class="ring"></span><span class="ring i"></span>
+        <span class="face mid" data-people="jin" style="left:50%;top:50%"></span>
+        <span class="face" data-people="amara" style="left:50%;top:9%"></span>
+        <span class="face" data-people="tom" style="left:91%;top:50%"></span>
+        <span class="face" data-people="grace" style="left:50%;top:91%"></span>
+        <span class="face" data-people="kenji" style="left:9%;top:50%"></span>
+      </div>
+      <p class="lede" style="text-align:center;max-width:none;margin-top:2vh;font-size:clamp(12px,1vw,16px)">One guest · four real conversations</p>
+    </div>
+  </div>
+</section>
+
+<!-- 9 · twelve moves -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker r" style="--d:0"><span class="dot"></span>Watch for these</div>
+    <h2 class="r" style="--d:1"><span class="grad">Twelve</span> moves in the room.</h2>
+    <div class="beats">
+      <div class="beat r" style="--d:2"><span class="num">01</span><div><b>Welcome the guest.</b> Name at the door.</div></div>
+      <div class="beat r" style="--d:2"><span class="num">02</span><div><b>Listen first.</b> Let them say why they came.</div></div>
+      <div class="beat r" style="--d:2"><span class="num">03</span><div><b>Walk to the center.</b> Do not park at the wall.</div></div>
+      <div class="beat r" style="--d:3"><span class="num">04</span><div><b>Introduce the background.</b> Give them a handle.</div></div>
+      <div class="beat r" style="--d:3"><span class="num">05</span><div><b>Explain the reason.</b> Point the conversation.</div></div>
+      <div class="beat r" style="--d:3"><span class="num">06</span><div><b>Edify the leader.</b> Build them up out loud.</div></div>
+      <div class="beat r" style="--d:4"><span class="num">07</span><div><b>Let them connect.</b> You go quiet.</div></div>
+      <div class="beat r" style="--d:4"><span class="num">08</span><div><b>Guide to shared ground.</b> Teacher to teacher.</div></div>
+      <div class="beat r" style="--d:4"><span class="num">09</span><div><b>Make the warm intro.</b> Hand off the story.</div></div>
+      <div class="beat r" style="--d:5"><span class="num">10</span><div><b>Let stories do the work.</b> Not your pitch.</div></div>
+      <div class="beat r" style="--d:5"><span class="num">11</span><div><b>Widen the circle.</b> One more person.</div></div>
+      <div class="beat r" style="--d:5"><span class="num">12</span><div><b>Stay with your guest.</b> Door to car.</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 10 · set the room -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker r" style="--d:0"><span class="dot"></span>Set the room</div>
+    <h2 class="r" style="--d:1">Your energy becomes their <span class="grad">first evidence</span>.</h2>
+    <div class="cards" style="margin-top:4.5vh">
+      <div class="card r" style="--d:2"><div class="n">Bring energy</div><div class="t">Be excited on purpose.</div><div class="d">Your guest reads the room through you. Bring warmth, certainty, and full attention.</div></div>
+      <div class="card r" style="--d:3"><div class="n">Build proof</div><div class="t">Capture the room.</div><div class="d">Take photos and short videos of real conversations, introductions, and people connecting.</div></div>
+      <div class="card r" style="--d:4"><div class="n">Make it visible</div><div class="t">Share the experience.</div><div class="d">Use the team's approved event tag and show what a strong room feels like.</div></div>
+    </div>
+    <p class="lede r" style="--d:5;max-width:52ch;margin-top:4vh">High energy is not noise. It is a guest feeling that they are in the right room with the right people.</p>
+  </div>
+</section>
+
+<!-- 11 · after the event -->
+<section class="slide">
+  <div class="inner row tight">
+    <div>
+      <div class="kicker r" style="--d:0"><span class="dot"></span>After the event</div>
+      <h2 class="r" style="--d:1">Leave with the next <span class="grad">get-together</span>, not just a goodbye.</h2>
+      <p class="lede r" style="--d:2">Reconnect while the experience is fresh. Ask what stood out, listen for the real answer, then set the next get-together within 24 hours. Before they leave, introduce them to a trainer who knows what they liked and when you will get together next.</p>
+      <div class="say r" style="--d:3">"What stood out to you most tonight?"</div>
+    </div>
+    <div class="art-wrap r" style="--d:4">
+      <div class="steps">
+        <div class="step"><span class="face" data-people="rosa"></span><div class="lb">Ask</div><div class="tx">What stood out to you most tonight?</div></div>
+        <div class="step"><span class="face" data-people="daniel"></span><div class="lb">Listen</div><div class="tx">Let the real answer come out. Do not fill the silence.</div></div>
+        <div class="step"><span class="face" data-people="fatima"></span><div class="lb">Set the next step</div><div class="tx">A time on the calendar within 24 hours.</div></div>
+      </div>
+      <p class="lede" style="text-align:center;max-width:none;margin-top:3vh;font-size:clamp(12px,1.05vw,17px);color:#fff">Do not turn the parking lot into an interview.</p>
+    </div>
+  </div>
+</section>
+
+<!-- 12 · the standard -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker r" style="--d:0"><span class="dot"></span>The standard</div>
+    <h1 class="r" style="--d:1">One guest.<br><span class="grad">Many conversations.</span></h1>
+    <p class="sub r" style="--d:2">Own your guest from the door to the car. Listen first. Make the warm introduction. Then widen the circle without leaving their side.</p>
+    <div class="say r" style="--d:3">The meeting is not where they decide. The Mo Zone is.</div>
+    <div class="strip r" style="--d:4"
+         data-people="grace,diego,ellen,aisha,wei,amir,sarah,daniel"></div>
+  </div>
+</section>
+
+</div>
+
+<div class="creed">RISE Team<br>The Mo Zone</div>
+<div class="hud">
+  <div class="pill">
+    <button id="prev" aria-label="Previous slide">&#8249;</button>
+    <span class="count" id="count">01 / 12</span>
+    <button id="next" aria-label="Next slide">&#8250;</button>
+  </div>
+</div>
+<div class="bar"><i id="fill"></i></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════════
+   People. Head-and-shoulders portrait medallions, drawn as
+   vectors so they stay crisp at any size and carry real skin,
+   hair and garment variation.
+   ═══════════════════════════════════════════════════════════ */
+const SKIN = {
+  deep : ['#2C190D','#4E2C18'],
+  brown: ['#452512','#6E3F22'],
+  tan  : ['#6A3C1B','#96613A'],
+  olive: ['#835026','#B07C4E'],
+  light: ['#9F6A3D','#D19F72'],
+  fair : ['#BF8E61','#F0CDA8']
+};
+const HAIRC = {
+  black:'#241C16', dark:'#30231A', brown:'#4C3420',
+  auburn:'#713C1C', blonde:'#C09550', grey:'#84848E', silver:'#C9CDD5'
+};
+
+/* hairline cap that sits over the forehead — tall enough to read at 50px */
+const CAP = h => `<path d="M35.6,44 C35.6,28 41.6,23 50,23 C58.4,23 64.4,28 64.4,44 C64.4,33.5 58,30.5 50,30.5 C42,30.5 35.6,33.5 35.6,44 Z" fill="${h}"/>`;
+const SHEEN = `<path d="M39.5,31.5 C43,26.4 57,26.4 60.5,31.5" fill="none" stroke="rgba(255,255,255,.17)" stroke-width="3.2" stroke-linecap="round"/>`;
+
+function hairBack(style, h){
+  switch(style){
+    case 'afro':   return `<circle cx="50" cy="31" r="25.5" fill="${h}"/>`;
+    case 'coils':  return `<g fill="${h}"><circle cx="50" cy="32" r="23"/><circle cx="28" cy="27" r="8"/><circle cx="72" cy="27" r="8"/><circle cx="37" cy="15" r="7.6"/><circle cx="63" cy="15" r="7.6"/><circle cx="50" cy="11" r="8"/></g>`;
+    case 'locs':   return `<g fill="${h}"><rect x="23" y="32" width="6.4" height="50" rx="3.2"/><rect x="31" y="34" width="6.4" height="46" rx="3.2"/><rect x="70.6" y="32" width="6.4" height="50" rx="3.2"/><rect x="62.6" y="34" width="6.4" height="46" rx="3.2"/><ellipse cx="50" cy="30" rx="21.4" ry="18.6"/></g>`;
+    case 'braids': return `<g fill="${h}"><rect x="24" y="34" width="4.8" height="46" rx="2.4"/><rect x="31" y="36" width="4.8" height="44" rx="2.4"/><rect x="71.2" y="34" width="4.8" height="46" rx="2.4"/><rect x="64.2" y="36" width="4.8" height="44" rx="2.4"/><ellipse cx="50" cy="30" rx="20.6" ry="17.8"/></g>`
+                        + `<g fill="#D6A94A"><circle cx="26.4" cy="80" r="2.8"/><circle cx="33.4" cy="80" r="2.8"/><circle cx="73.6" cy="80" r="2.8"/><circle cx="66.6" cy="80" r="2.8"/></g>`;
+    case 'long':   return `<path d="M26,45 C26,20 74,20 74,45 L74,86 C74,90.5 66.5,90.5 66.5,86 L66.5,50 C60,56 40,56 33.5,50 L33.5,86 C33.5,90.5 26,90.5 26,86 Z" fill="${h}"/>`;
+    case 'wavy':   return `<path d="M26,45 C26,20 74,20 74,45 C76.4,57 72,65 74,75 C75.2,83.5 70.5,89 66.5,86.5 C70,76 65.5,66 66.5,51 C60,56 40,56 33.5,51 C34.5,66 30,76 33.5,86.5 C29.5,89 24.8,83.5 26,75 C28,65 23.6,57 26,45 Z" fill="${h}"/>`;
+    case 'bangs':  return `<path d="M27,44 C27,20 73,20 73,44 L73,79 C73,83.5 66.5,83.5 66.5,79 L66.5,50 C60,56 40,56 33.5,50 L33.5,79 C33.5,83.5 27,83.5 27,79 Z" fill="${h}"/>`;
+    case 'bob':    return `<path d="M28.6,44 C28.6,20 71.4,20 71.4,44 L71.4,60 C71.4,64.6 65,64.6 65,60 L65,49 C59,54 41,54 35,49 L35,60 C35,64.6 28.6,64.6 28.6,60 Z" fill="${h}"/>`;
+    case 'bun':    return `<g fill="${h}"><circle cx="50" cy="13.6" r="8.8"/><ellipse cx="50" cy="33" rx="17.8" ry="15.8"/></g>`;
+    case 'short':  return `<ellipse cx="50" cy="33.6" rx="18.2" ry="16" fill="${h}"/>`;
+    case 'fade':   return `<ellipse cx="50" cy="35" rx="16.8" ry="14.6" fill="${h}"/>`;
+    default:       return '';
+  }
+}
+function hairFront(style, h, fabric){
+  switch(style){
+    case 'bald':  return '';
+    case 'hijab': return `<path fill-rule="evenodd" fill="${fabric}" d="M20,47 C20,20 80,20 80,47 L80,74 C80,85 65,89 50,89 C35,89 20,85 20,74 Z M50,26.5 C40.2,26.5 35,33.8 35,42.8 C35,53.2 41.4,59.5 50,59.5 C58.6,59.5 65,53.2 65,42.8 C65,33.8 59.8,26.5 50,26.5 Z"/>`
+                       + `<path d="M20,60 C26,67 34,70.5 40.5,71.5 L34,88 C26.5,86 20,80.5 20,74 Z" fill="rgba(0,0,0,.20)"/>`
+                       + `<path d="M28,34 C33,26 42,22.5 50,22.5" fill="none" stroke="rgba(255,255,255,.20)" stroke-width="3" stroke-linecap="round"/>`;
+    case 'turban':return `<ellipse cx="50" cy="30.5" rx="19.4" ry="14.8" fill="${fabric}"/>`
+                       + `<path d="M31.2,35.5 C38,28.4 62,28.4 68.8,35.5" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="3.2" stroke-linecap="round"/>`
+                       + `<circle cx="66.6" cy="33.4" r="4.8" fill="${fabric}"/>`;
+    case 'bangs': return `<path d="M35.4,44 C35.4,25.5 64.6,25.5 64.6,44 L64.6,34.6 C58,39.4 42,39.4 35.4,34.6 Z" fill="${h}"/>`;
+    default:      return CAP(h);
+  }
+}
+function beardPath(kind,h){
+  if(kind === 'full')  return `<path d="M35.4,44 C35.4,60 41.8,66.5 50,66.5 C58.2,66.5 64.6,60 64.6,44 C64.6,55.5 59.2,59.6 50,59.6 C40.8,59.6 35.4,55.5 35.4,44 Z" fill="${h}"/>`;
+  if(kind === 'short') return `<path d="M36.6,46 C36.6,58.6 42.4,64 50,64 C57.6,64 63.4,58.6 63.4,46 C63.4,55 58.4,58.6 50,58.6 C41.6,58.6 36.6,55 36.6,46 Z" fill="${h}" opacity=".72"/>`;
+  return '';
+}
+
+let uid = 0;
+function portrait(p){
+  const id = 'f' + (uid++);
+  const [shade, skin] = SKIN[p.skin];
+  const h  = HAIRC[p.hair] || p.hair;
+  const g  = p.top;
+  const gd = p.topDark || 'rgba(0,0,0,.26)';
+  const covered = p.style === 'hijab';
+  return `<svg viewBox="0 0 100 100" aria-hidden="true">
+  <defs>
+    <clipPath id="c${id}"><circle cx="50" cy="50" r="50"/></clipPath>
+    <radialGradient id="bg${id}" cx="30%" cy="16%" r="94%">
+      <stop offset="0" stop-color="${p.bg || '#1B3D49'}"/>
+      <stop offset="1" stop-color="#050A0C"/>
+    </radialGradient>
+    <radialGradient id="lt${id}" cx="26%" cy="14%" r="66%">
+      <stop offset="0" stop-color="#fff" stop-opacity=".13"/>
+      <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="vg${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="62%" stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".32"/>
+    </linearGradient>
+  </defs>
+  <g clip-path="url(#c${id})">
+    <rect width="100" height="100" fill="url(#bg${id})"/>
+    ${hairBack(p.style, h)}
+    <path d="M7,101 C7,76 25.5,63 50,63 C74.5,63 93,76 93,101 Z" fill="${g}"/>
+    <path d="M50,63 C57.2,63 63.8,64.2 69.4,66.3 L61.4,101 L38.6,101 L30.6,66.3 C36.2,64.2 42.8,63 50,63 Z" fill="${gd}"/>
+    <path d="M43.2,49 L43.2,64 C43.2,68.8 56.8,68.8 56.8,64 L56.8,49 Z" fill="${shade}"/>
+    ${covered ? '' : `<g fill="${shade}"><ellipse cx="35.2" cy="43.5" rx="2.3" ry="3.5"/><ellipse cx="64.8" cy="43.5" rx="2.3" ry="3.5"/></g>`}
+    <ellipse cx="50" cy="41" rx="14.4" ry="17.2" fill="${skin}"/>
+    <path d="M50,23.8 C58,23.8 64.4,31.5 64.4,41 C64.4,50.5 58,58.2 50,58.2 C56.2,53.6 58.4,47.8 58.4,41 C58.4,34.2 56.2,28.4 50,23.8 Z" fill="${shade}" opacity=".30"/>
+    <ellipse cx="42.4" cy="46.4" rx="3.8" ry="2.6" fill="#E9756B" opacity=".13"/>
+    <ellipse cx="57.6" cy="46.4" rx="3.8" ry="2.6" fill="#E9756B" opacity=".13"/>
+    <g fill="#1C1009" opacity=".82"><ellipse cx="44.3" cy="41.6" rx="1.9" ry="2.2"/><ellipse cx="55.7" cy="41.6" rx="1.9" ry="2.2"/></g>
+    <path d="M46.6,50.4 C48.2,52.4 51.8,52.4 53.4,50.4" fill="none" stroke="${shade}" stroke-width="1.5" stroke-linecap="round" opacity=".6"/>
+    ${beardPath(p.beard, h)}
+    ${hairFront(p.style, h, p.fabric)}
+    ${(p.style === 'bald' || covered || p.style === 'turban') ? '' : SHEEN}
+    ${p.glasses ? `<g fill="none" stroke="rgba(255,255,255,.62)" stroke-width="1.5"><rect x="38.2" y="37.4" width="11.4" height="8.4" rx="4.2"/><rect x="50.4" y="37.4" width="11.4" height="8.4" rx="4.2"/><path d="M49.6,41.6 h0.8"/><path d="M38.2,40.4 L34.6,39.6"/><path d="M61.8,40.4 L65.4,39.6"/></g>` : ''}
+    <rect width="100" height="100" fill="url(#lt${id})"/>
+    <rect width="100" height="100" fill="url(#vg${id})"/>
+  </g>
+  <circle cx="50" cy="50" r="49.3" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="1.4"/>
+</svg>`;
+}
+
+const PEOPLE = {
+  amara : {skin:'deep' , hair:'black' , style:'afro'  , top:'#F0664A', bg:'#432018'},
+  marcus: {skin:'deep' , hair:'black' , style:'fade'  , top:'#2C63A8', bg:'#122A46', beard:'full'},
+  daniel: {skin:'deep' , hair:'black' , style:'locs'  , top:'#6A54C4', bg:'#241F4C'},
+  aisha : {skin:'brown', hair:'black' , style:'braids', top:'#E8A82A', bg:'#412F10'},
+  grace : {skin:'brown', hair:'black' , style:'coils' , top:'#1FA089', bg:'#0F3C36'},
+  priya : {skin:'tan'  , hair:'black' , style:'long'  , top:'#28A38D', bg:'#133E38'},
+  fatima: {skin:'tan'  , hair:'black' , style:'hijab' , top:'#4A3A72', bg:'#2A2044', fabric:'#8A5FD0'},
+  amir  : {skin:'tan'  , hair:'black' , style:'turban', top:'#3E5260', bg:'#142E30', fabric:'#1FA09A', beard:'full'},
+  diego : {skin:'olive', hair:'dark'  , style:'short' , top:'#6E9152', bg:'#25341B', beard:'short'},
+  rosa  : {skin:'olive', hair:'brown' , style:'bun'   , top:'#D9678E', bg:'#421E2E'},
+  wei   : {skin:'light', hair:'black' , style:'bob'   , top:'#3F72B8', bg:'#172A46'},
+  kenji : {skin:'light', hair:'black' , style:'short' , top:'#5A616E', bg:'#1C202A', glasses:true},
+  jin   : {skin:'light', hair:'black' , style:'bangs' , top:'#2E8BB8', bg:'#103240'},
+  sarah : {skin:'fair' , hair:'auburn', style:'wavy'  , top:'#A03C52', bg:'#381723'},
+  tom   : {skin:'fair' , hair:'grey'  , style:'bald'  , top:'#2E9376', bg:'#14352D', beard:'short'},
+  ellen : {skin:'fair' , hair:'silver', style:'bob'   , top:'#6C7F94', bg:'#1F2833'}
+};
+
+document.querySelectorAll('[data-people]').forEach(host => {
+  const names = host.dataset.people.split(',').map(s => s.trim());
+  const wrapEach = !host.classList.contains('face');
+  host.innerHTML = names.map(n => {
+    const svg = portrait(PEOPLE[n]);
+    return wrapEach ? `<span class="face">${svg}</span>` : svg;
+  }).join('');
+});
+
+/* ── RISE badge ─────────────────────────────────────────────── */
+(function(){
+  const host = document.querySelector('[data-logo]');
+  if(!host) return;
+  const rad = d => d * Math.PI / 180, ax = 60, ay = 74, R = 74, hw = 5.4;
+  let rays = '';
+  for(let a = -72; a <= 72; a += 18){
+    const p = t => `${(ax + R*Math.sin(rad(t))).toFixed(1)},${(ay - R*Math.cos(rad(t))).toFixed(1)}`;
+    rays += `<path d="M${ax},${ay} L${p(a-hw)} L${p(a+hw)} Z"/>`;
+  }
+  host.innerHTML = `<svg viewBox="0 0 120 120" aria-label="RISE" role="img" style="width:100%;height:100%">
+    <defs>
+      <clipPath id="rclip"><circle cx="60" cy="60" r="55"/></clipPath>
+      <linearGradient id="rgrad" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#7FF0DC"/><stop offset="1" stop-color="#4FB9E8"/>
+      </linearGradient>
+    </defs>
+    <g clip-path="url(#rclip)">
+      <g fill="url(#rgrad)" opacity=".34">${rays}</g>
+      <path d="M60,28 C62.4,28 63.6,29.6 64.4,31.2 L94,84 C95,86 94,88 91.6,88 L28.4,88 C26,88 25,86 26,84 L55.6,31.2 C56.4,29.6 57.6,28 60,28 Z"
+            fill="#000" stroke="url(#rgrad)" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M38,72 C46,64 54,76 62,72 C70,68 76,70 82,74" fill="none" stroke="url(#rgrad)" stroke-width="3" stroke-linecap="round"/>
+    </g>
+    <circle cx="60" cy="60" r="55" fill="none" stroke="url(#rgrad)" stroke-width="3"/>
+  </svg>`;
+})();
+
+/* ── navigation ─────────────────────────────────────────────── */
+const slides = [...document.querySelectorAll('.slide')];
+const elCount = document.getElementById('count');
+const elFill  = document.getElementById('fill');
+const elPrev  = document.getElementById('prev');
+const elNext  = document.getElementById('next');
+const aura    = document.querySelector('.aura');
+const pad = n => String(n).padStart(2,'0');
+let i = 0;
+
+function go(n){
+  n = Math.max(0, Math.min(slides.length - 1, n));
+  if(n === i && slides[n].classList.contains('on')) return;
+  i = n;
+  slides.forEach((s,k) => { s.classList.toggle('on', k === i); s.style.transform = ''; });
+  elCount.textContent = pad(i+1) + ' / ' + pad(slides.length);
+  elFill.style.width  = ((i+1) / slides.length * 100) + '%';
+  elPrev.disabled = i === 0;
+  elNext.disabled = i === slides.length - 1;
+  /* light drifts with the deck: no loop, no oscillation */
+  const t = i / (slides.length - 1);
+  aura.style.setProperty('--ax', (14 + t*66) + '%');
+  aura.style.setProperty('--ay', (12 + Math.sin(t*Math.PI)*46) + '%');
+  aura.style.setProperty('--bx', (88 - t*64) + '%');
+  aura.style.setProperty('--by', (84 - Math.sin(t*Math.PI)*40) + '%');
+}
+
+elNext.onclick = () => go(i+1);
+elPrev.onclick = () => go(i-1);
+
+addEventListener('keydown', e => {
+  if(['ArrowRight','PageDown',' ','Enter','ArrowDown'].includes(e.key)){ e.preventDefault(); go(i+1); }
+  if(['ArrowLeft','PageUp','Backspace','ArrowUp'].includes(e.key)){ e.preventDefault(); go(i-1); }
+  if(e.key === 'Home') go(0);
+  if(e.key === 'End')  go(slides.length-1);
+  if(e.key === 'f' || e.key === 'F'){
+    document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  }
+});
+
+/* click to advance, left edge to go back */
+const deck = document.getElementById('deck');
+deck.addEventListener('click', e => {
+  if(e.target.closest('a,button')) return;
+  if(dragged) return;
+  go(e.clientX < innerWidth * 0.26 ? i-1 : i+1);
+});
+
+/* ── 1:1 swipe with momentum projection and rubber-banding ──── */
+let down = false, startX = 0, dx = 0, dragged = false, hist = [];
+const rubber = (over, dim, c = 0.55) => (over * dim * c) / (dim + c * Math.abs(over));
+const project = (v, d = 0.996) => (v / 1000) * d / (1 - d);
+
+deck.addEventListener('pointerdown', e => {
+  if(e.pointerType === 'mouse') return;
+  down = true; dragged = false; startX = e.clientX; dx = 0;
+  hist = [{x:e.clientX, t:performance.now()}];
+  slides[i].style.transition = 'none';
+});
+deck.addEventListener('pointermove', e => {
+  if(!down) return;
+  dx = e.clientX - startX;
+  if(Math.abs(dx) > 10) dragged = true;
+  const atEdge = (dx > 0 && i === 0) || (dx < 0 && i === slides.length - 1);
+  const shift = atEdge ? rubber(dx, innerWidth) : dx;
+  slides[i].style.transform = `translate3d(${shift}px,0,0)`;
+  hist.push({x:e.clientX, t:performance.now()});
+  if(hist.length > 6) hist.shift();
+});
+function release(){
+  if(!down) return;
+  down = false;
+  const a = hist[0], b = hist[hist.length-1];
+  const v = (b && a && b.t !== a.t) ? (b.x - a.x) / (b.t - a.t) * 1000 : 0;
+  const landing = dx + project(v);
+  slides[i].style.transition = 'transform .5s cubic-bezier(.22,1,.36,1)';
+  slides[i].style.transform = '';
+  if(landing < -innerWidth * 0.22) go(i+1);
+  else if(landing > innerWidth * 0.22) go(i-1);
+  setTimeout(() => { dragged = false; }, 60);
+}
+deck.addEventListener('pointerup', release);
+deck.addEventListener('pointercancel', release);
+
+go(0);
+</script>
+</body>
+</html>
