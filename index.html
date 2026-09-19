@@ -220,6 +220,15 @@ p.lede b{color:var(--ink);font-weight:600}
 .bcard .bd{margin-top:9px;font-size:clamp(12.5px,1.02vw,16px);color:var(--dim);line-height:1.45}
 @media(max-width:940px){.branch{grid-template-columns:1fr}}
 
+.forkhead .badge{width:clamp(38px,3.6vw,50px);aspect-ratio:1;border-radius:999px;display:grid;place-items:center;
+  flex:none;border:1px solid var(--hair);background:rgba(255,255,255,.05);
+  font-size:clamp(12.5px,1.1vw,16px);font-weight:600;font-variant-numeric:tabular-nums}
+.forkhead .badge b{background:linear-gradient(140deg,var(--a1),var(--a2));
+  -webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
+.forkhead.q{padding:16px 20px}
+.forklabel{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--dimmer);
+  margin:2px 0 -4px 2px}
+
 /* zone diagram */
 .zone{border-radius:26px;border:1px solid var(--hair);overflow:hidden;
   background:linear-gradient(170deg,rgba(255,255,255,.06),rgba(255,255,255,.015));
@@ -526,19 +535,27 @@ p.lede b{color:var(--ink);font-weight:600}
   <div class="inner row tight">
     <div>
       <div class="kicker r" style="--d:0"><span class="dot"></span>After the event</div>
-      <h2 class="r" style="--d:1">Leave with the next <span class="grad">step</span>, not just a goodbye.</h2>
-      <p class="lede r" style="--d:2">Reconnect while the experience is fresh. Ask what stood out and listen for the real answer. Then take the path they hand you. <b>Do not turn the parking lot into an interview.</b></p>
-      <div class="say r" style="--d:3">"What stood out to you most tonight?"</div>
+      <h2 class="r" style="--d:1">Blue card first. Then the <span class="grad">question</span>.</h2>
+      <p class="lede r" style="--d:2">The second the speaker sits down, the room is at its warmest. Get the blue card filled out before they talk to anyone else. Then ask, and take the path they hand you. <b>Do not turn the parking lot into an interview.</b></p>
+      <div class="say r" style="--d:3">"Wasn't that amazing? What stood out to you the most?"</div>
     </div>
     <div class="art-wrap r" style="--d:4">
       <div class="fork">
         <div class="forkhead">
           <span class="face" data-people="rosa"></span>
           <div>
-            <div class="lb">Start here</div>
-            <div class="tx">Ask what stood out. Then listen.</div>
+            <div class="lb">Step one · blue card</div>
+            <div class="tx">Filled out right after the speaker finishes.</div>
           </div>
         </div>
+        <div class="forkhead q">
+          <span class="badge"><b>02</b></span>
+          <div>
+            <div class="lb">The question</div>
+            <div class="tx">"Wasn't that amazing? What stood out to you the most?"</div>
+          </div>
+        </div>
+        <div class="forklabel">Then take the path they give you</div>
         <div class="branch">
           <div class="bcard lit">
             <div class="bw">If they are ready</div>
@@ -556,7 +573,21 @@ p.lede b{color:var(--ink);font-weight:600}
   </div>
 </section>
 
-<!-- 12 · the standard -->
+<!-- 12 · the rescue -->
+<section class="slide">
+  <div class="inner">
+    <div class="kicker r" style="--d:0"><span class="dot"></span>Important</div>
+    <h2 class="r" style="--d:1;max-width:26ch">Cannot get them on the calendar inside 24 to 48 hours? <span class="grad">Walk them to Olivia.</span></h2>
+    <div class="cards" style="margin-top:4vh">
+      <div class="card r" style="--d:2"><div class="n">Step 01</div><div class="t">Say the line.</div><div class="d">"Hey, I promised we'd say bye to Olivia before we left." Use whoever your SMD is that night.</div></div>
+      <div class="card r" style="--d:3"><div class="n">Step 02</div><div class="t">Turn and walk toward her.</div><div class="d">Do not ask permission. You are already moving, and they come with you.</div></div>
+      <div class="card r" style="--d:4"><div class="n">Step 03</div><div class="t">Cue her to the challenge.</div><div class="d">"She loved the part about building alongside her job. We're trying to figure out when to book."</div></div>
+    </div>
+    <p class="lede r" style="--d:5;max-width:56ch;margin-top:4vh">A stall is not a no. It is a signal that you ran out of leverage. <b>Hand the conversation to somebody who still has some.</b></p>
+  </div>
+</section>
+
+<!-- 13 · the standard -->
 <section class="slide">
   <div class="inner">
     <div class="kicker r" style="--d:0"><span class="dot"></span>The standard</div>
