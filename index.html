@@ -111,15 +111,15 @@ p.lede b{color:var(--ink);font-weight:600}
 /* ── numbered grid ─────────────────────────────────────────── */
 .beats{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:3vh;
   border-radius:20px;overflow:hidden;border:1px solid var(--hair);background:var(--hair)}
-.beat{display:flex;gap:16px;align-items:flex-start;padding:20px 22px;
+.beat{display:flex;gap:16px;align-items:center;padding:22px 22px;
   background:rgba(255,255,255,.035);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);
-  font-size:clamp(13px,1.1vw,17px);line-height:1.38;color:var(--dim);
+  font-size:clamp(13.5px,1.18vw,18px);line-height:1.34;color:var(--dim);
   transition:background .35s var(--spring)}
 .beat:hover{background:rgba(255,255,255,.085)}
 .beat .num{font-variant-numeric:tabular-nums;font-weight:600;font-size:clamp(15px,1.25vw,20px);
   letter-spacing:-.02em;flex:none;
   background:linear-gradient(140deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
-.beat b{font-weight:600;color:#fff;display:block;letter-spacing:-.015em;margin-bottom:3px}
+.beat b{font-weight:600;color:#fff;display:block;letter-spacing:-.015em}
 @media(max-width:1100px){.beats{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:700px){.beats{grid-template-columns:1fr}.beat{padding:12px 14px}}
 
@@ -197,6 +197,28 @@ p.lede b{color:var(--ink);font-weight:600}
 .step .lb{margin-top:16px;font-size:clamp(11px,.94vw,14px);letter-spacing:.24em;text-transform:uppercase;
   background:linear-gradient(120deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent;font-weight:600}
 .step .tx{margin-top:9px;font-size:clamp(12.5px,1.02vw,16px);color:var(--dim);line-height:1.45}
+
+/* after-the-event fork */
+.fork{display:flex;flex-direction:column;gap:clamp(12px,1.6vw,20px)}
+.forkhead{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:20px;
+  border:1px solid var(--hair);background:rgba(255,255,255,.035);
+  backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.forkhead .face{width:clamp(48px,4.6vw,66px);aspect-ratio:1}
+.forkhead .lb{font-size:clamp(10px,.88vw,13px);letter-spacing:.24em;text-transform:uppercase;font-weight:600;
+  background:linear-gradient(120deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.forkhead .tx{margin-top:6px;font-size:clamp(13px,1.1vw,18px);color:#fff;font-weight:500;letter-spacing:-.012em}
+.branch{display:grid;grid-template-columns:1fr 1fr;gap:clamp(10px,1.4vw,18px)}
+.bcard{border-radius:20px;border:1px solid var(--hair);padding:20px 18px 22px;position:relative;overflow:hidden;
+  background:linear-gradient(168deg,rgba(255,255,255,.075),rgba(255,255,255,.022));
+  backdrop-filter:blur(24px) saturate(150%);-webkit-backdrop-filter:blur(24px) saturate(150%);
+  box-shadow:0 26px 60px -34px #000, inset 0 1px 0 rgba(255,255,255,.12)}
+.bcard.lit{border-color:rgba(127,240,220,.44);
+  box-shadow:0 26px 60px -30px #000,0 0 44px -14px rgba(127,240,220,.45), inset 0 1px 0 rgba(255,255,255,.16)}
+.bcard .bw{font-size:10px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:var(--dimmer)}
+.bcard.lit .bw{color:var(--a1)}
+.bcard .bt{margin-top:10px;font-size:clamp(16px,1.5vw,24px);font-weight:600;letter-spacing:-.024em;line-height:1.12}
+.bcard .bd{margin-top:9px;font-size:clamp(12.5px,1.02vw,16px);color:var(--dim);line-height:1.45}
+@media(max-width:940px){.branch{grid-template-columns:1fr}}
 
 /* zone diagram */
 .zone{border-radius:26px;border:1px solid var(--hair);overflow:hidden;
@@ -469,18 +491,18 @@ p.lede b{color:var(--ink);font-weight:600}
     <div class="kicker r" style="--d:0"><span class="dot"></span>Watch for these</div>
     <h2 class="r" style="--d:1"><span class="grad">Twelve</span> moves in the room.</h2>
     <div class="beats">
-      <div class="beat r" style="--d:2"><span class="num">01</span><div><b>Welcome the guest.</b> Name at the door.</div></div>
-      <div class="beat r" style="--d:2"><span class="num">02</span><div><b>Listen first.</b> Let them say why they came.</div></div>
-      <div class="beat r" style="--d:2"><span class="num">03</span><div><b>Walk to the center.</b> Do not park at the wall.</div></div>
-      <div class="beat r" style="--d:3"><span class="num">04</span><div><b>Introduce the background.</b> Give them a handle.</div></div>
-      <div class="beat r" style="--d:3"><span class="num">05</span><div><b>Explain the reason.</b> Point the conversation.</div></div>
-      <div class="beat r" style="--d:3"><span class="num">06</span><div><b>Edify the leader.</b> Build them up out loud.</div></div>
-      <div class="beat r" style="--d:4"><span class="num">07</span><div><b>Let them connect.</b> You go quiet.</div></div>
-      <div class="beat r" style="--d:4"><span class="num">08</span><div><b>Guide to shared ground.</b> Teacher to teacher.</div></div>
-      <div class="beat r" style="--d:4"><span class="num">09</span><div><b>Make the warm intro.</b> Hand off the story.</div></div>
-      <div class="beat r" style="--d:5"><span class="num">10</span><div><b>Let stories do the work.</b> Not your pitch.</div></div>
-      <div class="beat r" style="--d:5"><span class="num">11</span><div><b>Widen the circle.</b> One more person.</div></div>
-      <div class="beat r" style="--d:5"><span class="num">12</span><div><b>Stay with your guest.</b> Door to car.</div></div>
+      <div class="beat r" style="--d:2"><span class="num">01</span><div><b>Welcome the guest.</b></div></div>
+      <div class="beat r" style="--d:2"><span class="num">02</span><div><b>Listen first.</b></div></div>
+      <div class="beat r" style="--d:2"><span class="num">03</span><div><b>Walk to the center.</b></div></div>
+      <div class="beat r" style="--d:3"><span class="num">04</span><div><b>Introduce the background.</b></div></div>
+      <div class="beat r" style="--d:3"><span class="num">05</span><div><b>Explain the reason.</b></div></div>
+      <div class="beat r" style="--d:3"><span class="num">06</span><div><b>Edify the leader.</b></div></div>
+      <div class="beat r" style="--d:4"><span class="num">07</span><div><b>Let them connect.</b></div></div>
+      <div class="beat r" style="--d:4"><span class="num">08</span><div><b>Guide to shared ground.</b></div></div>
+      <div class="beat r" style="--d:4"><span class="num">09</span><div><b>Make the warm intro.</b></div></div>
+      <div class="beat r" style="--d:5"><span class="num">10</span><div><b>Let stories do the work.</b></div></div>
+      <div class="beat r" style="--d:5"><span class="num">11</span><div><b>Widen the circle.</b></div></div>
+      <div class="beat r" style="--d:5"><span class="num">12</span><div><b>Stay with your guest.</b></div></div>
     </div>
   </div>
 </section>
@@ -504,17 +526,32 @@ p.lede b{color:var(--ink);font-weight:600}
   <div class="inner row tight">
     <div>
       <div class="kicker r" style="--d:0"><span class="dot"></span>After the event</div>
-      <h2 class="r" style="--d:1">Leave with the next <span class="grad">get-together</span>, not just a goodbye.</h2>
-      <p class="lede r" style="--d:2">Reconnect while the experience is fresh. Ask what stood out, listen for the real answer, then set the next get-together within 24 hours. Before they leave, introduce them to a trainer who knows what they liked and when you will get together next.</p>
+      <h2 class="r" style="--d:1">Leave with the next <span class="grad">step</span>, not just a goodbye.</h2>
+      <p class="lede r" style="--d:2">Reconnect while the experience is fresh. Ask what stood out and listen for the real answer. Then take the path they hand you. <b>Do not turn the parking lot into an interview.</b></p>
       <div class="say r" style="--d:3">"What stood out to you most tonight?"</div>
     </div>
     <div class="art-wrap r" style="--d:4">
-      <div class="steps">
-        <div class="step"><span class="face" data-people="rosa"></span><div class="lb">Ask</div><div class="tx">What stood out to you most tonight?</div></div>
-        <div class="step"><span class="face" data-people="daniel"></span><div class="lb">Listen</div><div class="tx">Let the real answer come out. Do not fill the silence.</div></div>
-        <div class="step"><span class="face" data-people="fatima"></span><div class="lb">Set the next step</div><div class="tx">A time on the calendar within 24 hours.</div></div>
+      <div class="fork">
+        <div class="forkhead">
+          <span class="face" data-people="rosa"></span>
+          <div>
+            <div class="lb">Start here</div>
+            <div class="tx">Ask what stood out. Then listen.</div>
+          </div>
+        </div>
+        <div class="branch">
+          <div class="bcard lit">
+            <div class="bw">If they are ready</div>
+            <div class="bt">AMA right now.</div>
+            <div class="bd">Do not wait, do not schedule it for later. They are ready tonight, so handle it tonight.</div>
+          </div>
+          <div class="bcard">
+            <div class="bw">If they want an FNA</div>
+            <div class="bt">Within 24 hours, with the spouse.</div>
+            <div class="bd">Both of them at the table. Put it on the calendar before they leave the room.</div>
+          </div>
+        </div>
       </div>
-      <p class="lede" style="text-align:center;max-width:none;margin-top:3vh;font-size:clamp(12px,1.05vw,17px);color:#fff">Do not turn the parking lot into an interview.</p>
     </div>
   </div>
 </section>
